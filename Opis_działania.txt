@@ -1,0 +1,34 @@
+Bilet_kinowy: 
+Baza danych stworzona w celu zasymulowania środowiska sprzedaży biletów. Użytkownicy, za pośrednictwem procedur przy wyborze miejsca, rezerwacji biletu, przeglądaniu repertuaru czy sprawdzaniu dostępności miejsc nie blokują się wzajemnie na wszystkich poziomach izolacji z wyłączeniem poziomu serializable. 
+
+Dodatkowo baza jest wsparta dwoma zadaniami SQL Server Agent, które maja za zadanie usunąć wybory wykonane przez zamknięte już sesje oraz usunąć wybory tych sesji jeśli w ciągu dwóch minut nie zostały zarezerwowane. Dane, w postaci repertuaru, do bazy danych, ładowane są za pośrednictwem procedury, która pobiera dane z pliku XML. 
+
+Opis najważniejszych procedur:
+
+Za sprawą poniższej procedury użytkownik zobaczy repertuar na dany dzień 
+Wybrany poprzez parametr. W przypadku braku parametru procedura pokaże dzień dzisiejszy:
+exec pokaż_repertuar2
+@data = '20220704'
+
+
+Poniższa procedura pokazuje wolne miejsca na wybrany przez użytkowania seans, miejsca wcześniej wybrane nie pokażą się w wyniku:
+exec pokaż_miejsca5
+@nazwa_filmu = 'Matrix4',
+@data_seansu = '20220704',
+@godzina_seansu = '21:00'
+
+Poprzez procedurę wybieramy miejsce na wybrany seans. Ponowny wybór tego samego miejsca, na ten sam seans powoduje usunięcie naszego wyboru:
+
+exec wybór_miejsca
+@nazwa_filmu = 'Matrix4',
+@data_seansu = '20220704',
+@godzina_seansu = '21:00',
+@miejsce = 1
+
+Za sprawą poniższej procedury, rezerwujemy wybrane miejsca. Konstrukcja bazy danych pozwala przed rezerwacją wybrać tylko 3 miejsca. Bardzo ważnym elementem jest numer sesji gdyż jako zmienna, zostanie przechwycony i na jego podstawie wykonane dalsza transakcja. Użytkownik podaje swój email oraz jaki rodzaj biletu (normalny, szkolny, senior) go interesuje. Przykład procedury:
+
+exec rezerwacja_biletu4
+@email = 'goral.p@interia.pl',
+@rodzaj_biletu1 = 'Normalny',
+@rodzaj_biletu2 = 'Szkolny',
+@rodzaj_biletu3 = 'Senior'
